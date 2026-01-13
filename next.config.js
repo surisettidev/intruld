@@ -1,24 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
+    // This tells Next.js to just use the image URL as-is
+    unoptimized: true, 
+    
+    // Allow images from these external domains
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.supabase.co',
+        hostname: 'images.unsplash.com',
       },
       {
         protocol: 'https',
-        hostname: '**.supabase.in',
-      },
+        hostname: '*.supabase.co', // This covers your database images
+      }
     ],
   },
-  eslint: {
-    ignoreDuringBuilds: true
-  },
-  typescript: {
-    ignoreBuildErrors: true
-  }
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
