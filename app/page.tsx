@@ -1,46 +1,33 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
+import { Navbar } from '@/components/Navbar'
+import { Footer } from '@/components/Footer'
 
-export default function Home() {
-  // Real Intru Vibe Data
-  const products = [
-    { 
-      id: 1, 
-      name: 'Doodles Heavy Tee', 
-      price: 999, 
-      originalPrice: 1499,
-      img: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800&auto=format&fit=crop',
-      tag: 'PUFF PRINT',
-      color: 'bg-pink-500' // Tag color
-    },
-    { 
-      id: 2, 
-      name: 'No Risk No Rari', 
-      price: 1199, 
-      originalPrice: 1999,
-      img: 'https://images.unsplash.com/photo-1503342394128-c104d54dba01?q=80&w=800&auto=format&fit=crop',
-      tag: 'BESTSELLER',
-      color: 'bg-green-500'
-    },
-    { 
-      id: 3, 
-      name: 'Varsity Jacket 001', 
-      price: 2499, 
-      originalPrice: 3999,
-      img: 'https://images.unsplash.com/photo-1551488852-0801751ac7eb?q=80&w=800&auto=format&fit=crop',
-      tag: 'WINTER DROP',
-      color: 'bg-blue-600'
-    },
-    { 
-      id: 4, 
-      name: 'Acid Wash Cargo', 
-      price: 1899, 
-      originalPrice: 2499,
-      img: 'https://images.unsplash.com/photo-1517438476312-10d79c077509?q=80&w=800&auto=format&fit=crop',
-      tag: 'LIMITED',
-      color: 'bg-red-600'
-    },
-  ]
+// Force dynamic rendering - no static caching
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+export const revalidate = 0
+
+async function getProducts() {
+  const { data: products, error } = await supabase
+    .from('products')
+    .select('id, title, price, compare_at_price, image_url, images, category, is_live')
+    .eq('is_live', true)
+    .order('created_at', { ascending: false })
+    .limit(8)
+
+  if (error) {
+    console.error('Error fetching products:', error)
+    return []
+  }
+
+  return products || []
+}
+
+export default async function Home() {
+  // Real-time data from Supabase
+  const products = await getProducts()
 
   return (
     <div className="min-h-screen relative selection:bg-[#ccff00] selection:text-black">
@@ -55,31 +42,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- NAVIGATION (Mobile First) --- */}
-      <nav className="p-4 md:p-6 flex justify-between items-center relative z-40 bg-black/80 backdrop-blur-md sticky top-0 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          {/* Hamburger Icon */}
-          <div className="md:hidden space-y-1 cursor-pointer">
-            <div className="w-6 h-0.5 bg-white"></div>
-            <div className="w-4 h-0.5 bg-white"></div>
-            <div className="w-6 h-0.5 bg-white"></div>
-          </div>
-          <Link href="/" className="font-heading text-3xl md:text-4xl tracking-tighter hover:text-[#ccff00] transition-colors">
-            INTRU<span className="text-[#ccff00]">®</span>
-          </Link>
-        </div>
-
-        <div className="hidden md:flex gap-8 font-heading text-sm tracking-widest">
-          <Link href="/" className="hover:text-[#ccff00] transition-colors">SHOP ALL</Link>
-          <Link href="/" className="hover:text-[#ccff00] transition-colors">OVERSIZED TEES</Link>
-          <Link href="/" className="hover:text-[#ccff00] transition-colors">CARGOS</Link>
-        </div>
-
-        <Link href="/cart" className="relative group">
-          <span className="font-heading text-xl">BAG (0)</span>
-          <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#ccff00] scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-        </Link>
-      </nav>
+      {/* Navigation */}
+      <Navbar />
 
       {/* --- HERO SECTION (The "Sticker Wall" Vibe) --- */}
       <header className="relative w-full pt-10 pb-20 px-4 overflow-hidden border-b border-white/20">
@@ -98,9 +62,9 @@ export default function Home() {
             <p className="font-doodle text-xl md:text-2xl text-gray-400 rotate-1 mb-8 max-w-md">
               "We create the chaos you want to wear. 100% Cotton. 0% Bullsh*t."
             </p>
-            <button className="bg-[#ccff00] text-black font-heading text-xl px-10 py-4 btn-glitch border-2 border-white">
+            <Link href="#products" className="inline-block bg-[#ccff00] text-black font-heading text-xl px-10 py-4 btn-glitch border-2 border-white hover:bg-white transition-colors">
               SHOP THE DROP
-            </button>
+            </Link>
           </div>
 
           {/* Right: Visual Imagery */}
@@ -124,62 +88,80 @@ export default function Home() {
 
 
       {/* --- PRODUCT GRID (The "Street Corner") --- */}
-      <section className="max-w-7xl mx-auto px-4 py-20">
+      <section id="products" className="max-w-7xl mx-auto px-4 py-20">
         <div className="flex justify-between items-end mb-12 border-b border-white/20 pb-4">
           <h2 className="font-heading text-4xl md:text-6xl">
             LATEST <span className="text-[#ccff00]">HEAT</span>
           </h2>
           <span className="font-mono text-xs md:text-sm text-gray-500">
-            [ UPDATED: TODAY ]
+            [ UPDATED: LIVE ]
           </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {products.map((product) => (
-            <div key={product.id} className="group relative">
-              
-              {/* Image Card */}
-              <div className="relative aspect-[3/4] bg-gray-900 border border-white/20 overflow-hidden mb-3">
+          {products.length > 0 ? (
+            products.map((product) => (
+              <Link key={product.id} href={`/products/${product.id}`} className="group relative">
                 
-                {/* Tag */}
-                <span className={`absolute top-2 left-2 ${product.color} text-white text-[10px] md:text-xs font-bold px-2 py-1 z-20`}>
-                  {product.tag}
-                </span>
+                {/* Image Card */}
+                <div className="relative aspect-[3/4] bg-gray-900 border border-white/20 overflow-hidden mb-3">
+                  
+                  {/* Category Tag */}
+                  {product.category && (
+                    <span className="absolute top-2 left-2 bg-pink-500 text-white text-[10px] md:text-xs font-bold px-2 py-1 z-20 uppercase">
+                      {product.category}
+                    </span>
+                  )}
 
-                <Image 
-                  src={product.img}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-1"
-                />
+                  {product.image_url ? (
+                    <Image 
+                      src={product.image_url}
+                      alt={product.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-1"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500">
+                      NO IMAGE
+                    </div>
+                  )}
 
-                {/* Hover Add to Cart (Mobile: Always visible button below, Desktop: Hover) */}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                  <button className="bg-white text-black font-heading px-6 py-2 hover:bg-[#ccff00] transition-colors">
-                    QUICK ADD +
-                  </button>
+                  {/* Hover Add to Cart */}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                    <button className="bg-white text-black font-heading px-6 py-2 hover:bg-[#ccff00] transition-colors">
+                      QUICK ADD +
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Info */}
-              <div>
-                <h3 className="font-bold text-sm md:text-lg uppercase leading-tight group-hover:text-[#ccff00] transition-colors">
-                  {product.name}
-                </h3>
-                <div className="flex gap-2 items-center mt-1">
-                  <span className="font-mono text-gray-500 text-xs line-through">₹{product.originalPrice}</span>
-                  <span className="font-bold text-white">₹{product.price}</span>
+                {/* Info */}
+                <div>
+                  <h3 className="font-bold text-sm md:text-lg uppercase leading-tight group-hover:text-[#ccff00] transition-colors line-clamp-2">
+                    {product.title}
+                  </h3>
+                  <div className="flex gap-2 items-center mt-1">
+                    {product.compare_at_price && product.compare_at_price > product.price && (
+                      <span className="font-mono text-gray-500 text-xs line-through">
+                        ₹{product.compare_at_price}
+                      </span>
+                    )}
+                    <span className="font-bold text-white">₹{product.price}</span>
+                  </div>
                 </div>
-              </div>
 
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-2 md:col-span-4 text-center py-20">
+              <p className="text-gray-500 text-lg">No products available yet. Check back soon!</p>
             </div>
-          ))}
+          )}
         </div>
         
         <div className="mt-16 text-center">
-          <button className="border border-white text-white px-12 py-3 font-heading tracking-widest hover:bg-white hover:text-black transition-all">
+          <Link href="/products" className="inline-block border border-white text-white px-12 py-3 font-heading tracking-widest hover:bg-white hover:text-black transition-all">
             VIEW ALL PRODUCTS
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -201,37 +183,8 @@ export default function Home() {
         </div>
       </section>
 
-
-      {/* --- FOOTER --- */}
-      <footer className="pt-20 pb-10 px-4 bg-black border-t border-white/10">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10">
-          <div>
-            <h2 className="font-heading text-6xl md:text-8xl text-white leading-none">
-              INTRU<span className="text-gray-800">.IN</span>
-            </h2>
-            <p className="font-doodle text-gray-500 mt-4 text-lg">
-              "Wear your intrusive thoughts."
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-12 font-mono text-sm text-gray-400">
-             <div className="flex flex-col gap-4">
-               <span className="text-white font-bold uppercase">Socials</span>
-               <a href="#" className="hover:text-[#ccff00]">Instagram ↗</a>
-               <a href="#" className="hover:text-[#ccff00]">WhatsApp ↗</a>
-             </div>
-             <div className="flex flex-col gap-4">
-               <span className="text-white font-bold uppercase">Legal</span>
-               <a href="#" className="hover:text-white">Privacy</a>
-               <a href="#" className="hover:text-white">Terms</a>
-             </div>
-          </div>
-        </div>
-        
-        <div className="text-center mt-20 pt-10 border-t border-dashed border-white/20 font-mono text-xs text-gray-600">
-          © 2024 INTRU CLOTHING INDIA. ALL RIGHTS RESERVED.
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
 
     </div>
   )
