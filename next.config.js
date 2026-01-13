@@ -1,7 +1,7 @@
-/** @type {import('next').NextConfig} 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // This tells Next.js to just use the image URL as-is
+    // ⚠️ CRITICAL: Disables server-side optimization for Cloudflare (Free Tier)
     unoptimized: true, 
     
     // Allow images from these external domains
@@ -12,24 +12,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.supabase.co', // This covers your database images
+        hostname: '*.supabase.co',
       }
     ],
   },
-};
-
-module.exports = nextConfig; */
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // ... keep your existing images config here ...
-  images: {
-    unoptimized: true,
-    remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: '*.supabase.co' }
-    ],
-  },
-  // Add these two sections to ignore strict checks during deployment
+  // Ignore lint/type errors during build to ensure deployment succeeds
   eslint: {
     ignoreDuringBuilds: true,
   },
