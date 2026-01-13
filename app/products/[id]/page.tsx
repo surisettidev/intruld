@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+/*import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import ProductDetailClient from './ProductDetailClient'
@@ -70,4 +70,16 @@ export default async function ProductPage({
   }
 
   return <ProductDetailClient product={product} />
+}
+*/
+
+// Before (Broken in Next.js 15)
+// export default function ProductPage({ params }: { params: { id: string } }) { ... }
+
+// After (Fixed)
+export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const id = params.id;
+  
+  // Now use 'id' to fetch data...
 }
