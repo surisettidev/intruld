@@ -3,7 +3,7 @@
  * POST /api/admin/products
  */
 
-export const runtime = 'edge'
+/*export const runtime = 'edge'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -73,4 +73,22 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+} */
+import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+
+export const runtime = 'edge';
+
+type RouteParams = { params: Promise<{ id: string }> }
+
+export async function PUT(request: Request, props: RouteParams) {
+  const params = await props.params;
+  const id = params.id;
+  // ... rest of your code using 'id'
+}
+
+export async function DELETE(request: Request, props: RouteParams) {
+  const params = await props.params;
+  const id = params.id;
+  // ... rest of your code using 'id'
 }

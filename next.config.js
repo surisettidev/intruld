@@ -1,24 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
+    // ⚠️ CRITICAL: Disables server-side optimization for Cloudflare (Free Tier)
+    unoptimized: true, 
+    
+    // Allow images from these external domains
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.supabase.co',
+        hostname: 'images.unsplash.com',
       },
       {
         protocol: 'https',
-        hostname: '**.supabase.in',
-      },
+        hostname: '*.supabase.co',
+      }
     ],
   },
+  // Ignore lint/type errors during build to ensure deployment succeeds
   eslint: {
-    ignoreDuringBuilds: true
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true
+    ignoreBuildErrors: true,
   }
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
