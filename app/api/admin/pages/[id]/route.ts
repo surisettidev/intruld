@@ -1,108 +1,48 @@
-/**
- * API Route: Content Page Operations
- * GET /api/admin/pages/[id] - Get page
- * PATCH /api/admin/pages/[id] - Update page
- * DELETE /api/admin/pages/[id] - Delete page
- */
+import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
-export const runtime = 'edge'
+export const runtime = 'edge';
 
-import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+// 1. Define params as a Promise (Next.js 15 Requirement)
+type RouteParams = { params: Promise<{ id: string }> }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const pageId = params.id
+// GET: Fetch ONE specific page
+export async function GET(request: Request, props: RouteParams) {
+  const params = await props.params;
+  const { data, error } = await supabase
+    .from('content_pages')
+    .select('*')
+    .eq('id', params.id)
+    .single()
 
-    const { data: page, error } = await supabaseAdmin
-      .from('content_pages')
-      .select('*')
-      .eq('id', pageId)
-      .single()
-
-    if (error || !page) {
-      return NextResponse.json(
-        { success: false, error: 'Page not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      page
-    })
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const pageId = params.id
-    const body = await req.json()
+// PUT: Update ONE specific page
+export async function PUT(request: Request, props: RouteParams) {
+  const params = await props.params;
+  const body = await request.json()
+  
+  const { data, error } = await supabase
+    .from('content_pages')
+    .update(body)
+    .eq('id', params.id)
+    .select()
+    .single()
 
-    const { data: page, error } = await supabaseAdmin
-      .from('content_pages')
-      .update({
-        ...body,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', pageId)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Database error:', error)
-      throw new Error('Failed to update page')
-    }
-
-    return NextResponse.json({
-      success: true,
-      page
-    })
-  } catch (error: any) {
-    console.error('Update page error:', error)
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const pageId = params.id
+// DELETE: Delete ONE specific page
+export async function DELETE(request: Request, props: RouteParams) {
+  const params = await props.params;
+  const { error } = await supabase
+    .from('content_pages')
+    .delete()
+    .eq('id', params.id)
 
-    const { error } = await supabaseAdmin
-      .from('content_pages')
-      .delete()
-      .eq('id', pageId)
-
-    if (error) {
-      console.error('Database error:', error)
-      throw new Error('Failed to delete page')
-    }
-
-    return NextResponse.json({
-      success: true
-    })
-  } catch (error: any) {
-    console.error('Delete page error:', error)
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
 }
