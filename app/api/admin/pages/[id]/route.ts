@@ -42,4 +42,3 @@ export async function DELETE(request: Request, props: RouteParams) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }
->>>>>>> 631cd69351798e815cff020de5fd7631c636113c
