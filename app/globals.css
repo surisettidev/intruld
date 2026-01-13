@@ -5,6 +5,9 @@
 :root {
   --neon-green: #ccff00;
   --neon-pink: #ff0099;
+  --font-inter: 'Inter', sans-serif;
+  --font-anton: 'Anton', sans-serif;
+  --font-marker: 'Permanent Marker', cursive;
 }
 
 body {
@@ -53,7 +56,35 @@ body {
   overflow: hidden;
   transition: all 0.3s;
 }
+
 .btn-glitch:hover {
   transform: translate(-4px, -4px);
   box-shadow: 4px 4px 0px var(--neon-green);
+}
+
+/* MARQUEE ANIMATION */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* FALLBACK STYLES FOR MISSING ELEMENTS */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* FIX FOR NEXT.JS DEFAULT PAGE */
+main {
+  min-height: 100vh;
 }
